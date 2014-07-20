@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/copyHexAction"
+		android:title="@string/copy_hex" />
+	<item
+		android:id="@+id/copyRgbAction"
+		android:title="@string/copy_rgb" />
+	<item
+		android:id="@+id/copyHsvAction"
+		android:title="@string/copy_hsv" />
+	<item
+		android:id="@+id/duplicateColorAction"
+		android:title="@string/duplicate_color" />
+	<item
+		android:id="@+id/editColorAction"
+		android:title="@string/edit_color" />
+	<item
+		android:id="@+id/deleteColorAction"
+		android:title="@string/delete_color" />
+</menu>

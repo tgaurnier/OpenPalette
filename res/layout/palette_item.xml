@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--
+  - R.layout.palette_item
+  -
+  - This is the layout of a single color of a palette, it consists of a Layout item that is filled
+  - with the color in question, and a text view that contains either the name of the color or the
+  - hex value.
+  -->
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<TextView
+		android:id="@+id/paletteItemHexText"
+		android:layout_width="90dp"
+		android:layout_height="match_parent"
+		android:layout_toLeftOf="@id/dragHandle"
+		android:textAlignment="center"
+		android:textAppearance="?android:attr/textAppearanceListItemSmall"
+		android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+		android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+		android:minHeight="?android:attr/listPreferredItemHeightSmall" />
+	<RelativeLayout
+		android:id="@+id/paletteItemColorView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@id/paletteItemHexText">
+		<TextView
+			android:id="@+id/paletteItemNameText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:textAppearance="?android:attr/textAppearanceListItemSmall"
+			android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+			android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+			android:minHeight="?android:attr/listPreferredItemHeightSmall"
+			android:shadowColor="#000000"
+			android:shadowRadius="2.5" />
+	</RelativeLayout>
+	<ImageView
+		android:id="@id/dragHandle"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_alignParentRight="true"
+		android:src="@drawable/drag_handle" />
+</RelativeLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- Menu items for when Palette Drawer is open -->
+	<item
+		android:id="@+id/deletePaletteAction"
+		android:icon="@android:drawable/ic_menu_delete"
+		android:title="@string/delete_palette"
+		android:showAsAction="ifRoom" />
+	<item
+		android:id="@+id/editPaletteAction"
+		android:icon="@android:drawable/ic_menu_edit"
+		android:title="@string/edit_palette"
+		android:showAsAction="ifRoom" />
+
+	<!-- Menu items for when Palette drawer is closed -->
+	<item
+		android:id="@+id/addColorAction"
+		android:icon="@android:drawable/ic_menu_add"
+		android:title="@string/add_color"
+		android:showAsAction="ifRoom" />
+
+	<!-- Settings, should always be in the overflow -->
+<!--
+	<item
+		android:id="@+id/settingsAction"
+		android:title="@string/settings"
+		android:showAsAction="never" />
+-->
+</menu>

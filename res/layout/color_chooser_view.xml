@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--
+  - R.layout.color_chooser_view
+  -
+  - This is the layout for the view within the color chooser dialog, it contains text fields for
+  - manual entry of color values, and a Layout for a ColorPickerView.
+  -->
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<!-- Name Input and Label -->
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/colorNameLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentLeft="true"
+			android:textSize="20sp"
+			android:text="Name:" />
+		<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/colorNameInput"
+			android:layout_width="190dp"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/colorNameLabel"
+			android:layout_alignParentLeft="true"
+			android:textSize="20sp"
+			android:singleLine="true"
+			android:hint="Optional" />
+
+		<!-- HEX Input and Label -->
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/hexLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/colorNameInput"
+			android:layout_alignParentLeft="true"
+			android:textSize="20sp"
+			android:text="Hex:" />
+		<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/hexInput"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/colorNameInput"
+			android:layout_toRightOf="@id/hexLabel"
+			android:textSize="20sp"
+			android:inputType="textNoSuggestions"
+			android:digits="0123456789ABCDEFabcdef"
+			android:maxLength="6" />
+
+		<!-- Red Input and Label -->
+		<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/redInput"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentRight="true"
+			android:textSize="20sp"
+			android:inputType="number"
+			android:digits="0123456789"
+			android:maxLength="3"
+			android:singleLine="true" />
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/redLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_toLeftOf="@id/redInput"
+			android:textSize="20sp"
+			android:text="Red:" />
+
+		<!-- Green Input and Label -->
+		<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/greenInput"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/redInput"
+			android:layout_alignParentRight="true"
+			android:textSize="20sp"
+			android:inputType="number"
+			android:digits="0123456789"
+			android:maxLength="3"
+			android:singleLine="true" />
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/greenLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/redInput"
+			android:layout_toLeftOf="@id/redInput"
+			android:textSize="20sp"
+			android:text="Green:" />
+
+		<!-- Blue Input and Label -->
+		<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/blueInput"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/greenInput"
+			android:layout_alignParentRight="true"
+			android:textSize="20sp"
+			android:inputType="number"
+			android:digits="0123456789"
+			android:maxLength="3"
+			android:singleLine="true" />
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/blueLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/greenInput"
+			android:layout_toLeftOf="@id/greenInput"
+			android:textSize="20sp"
+			android:text="Blue:" />
+
+		<!-- Main Color Picker -->
+		<com.larswerkman.holocolorpicker.ColorPicker
+			android:id="@+id/colorPicker"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/blueInput"
+			android:layout_centerHorizontal="true" />
+
+		<!-- Saturation Bar -->
+		<com.larswerkman.holocolorpicker.SaturationBar
+			android:id="@+id/saturationBar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/colorPicker"
+			android:layout_centerHorizontal="true" />
+
+		<!-- Value (Brightness) Bar -->
+		<com.larswerkman.holocolorpicker.ValueBar
+			android:id="@+id/valueBar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/saturationBar"
+			android:layout_centerHorizontal="true" />
+	</RelativeLayout>
+</ScrollView>
