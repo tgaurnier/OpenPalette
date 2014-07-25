@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+  - R.layout.main_fragment
+  -
+  - This is the layout for the main fragment.
+  -->
+
+
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/rootDrawerLayout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+		<com.mobeta.android.dslv.DragSortListView
+			xmlns:dslv="http://schemas.android.com/apk/res/com.torygaurnier.openpalette"
+			android:id="@+id/paletteView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			dslv:drag_handle_id="@id/dragHandle"
+			dslv:use_default_controller="true"
+			dslv:sort_enabled="true"
+			dslv:remove_enabled="true"
+			dslv:remove_mode="flingRemove"
+			dslv:drag_start_mode="onMove" />
+		<Button
+			android:layout_width="wrap_content"
+			android:id="@+id/createFirstPaletteButton"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:text="@string/add_first_palette"
+			android:visibility="gone" />
+	</FrameLayout>
+	<LinearLayout
+		android:id="@+id/paletteDrawer"
+		android:layout_width="240dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="start"
+		android:orientation="vertical"
+		android:background="@android:color/background_dark">
+		<ListView
+			android:id="@+id/paletteListView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:choiceMode="singleChoice"
+			android:divider="@android:color/transparent"
+			android:dividerHeight="0dp" />
+		<Button
+			android:id="@+id/newPaletteButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/new_palette" />
+	</LinearLayout>
+</android.support.v4.widget.DrawerLayout>

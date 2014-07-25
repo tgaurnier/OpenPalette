@@ -1,5 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright 2014 Tory Gaurnier                                                *
+ * MainActivity.java                                                           *
+ *                                                                             *
+ * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify        *
  * it under the terms of the GNU Lesser General Public License as published by *
@@ -18,227 +20,92 @@
 package com.torygaurnier.openpalette;
 
 
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.widget.DrawerLayout;
-
 import android.os.Bundle;
 
-import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.app.Activity;
+import android.app.Fragment;
 
-import android.content.res.Configuration;
-import android.content.ClipboardManager;
 import android.content.DialogInterface;
-import android.content.ClipData;
 
-import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Menu;
 
-import android.view.View;
-
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import com.mobeta.android.dslv.DragSortListView;
 
 
 //TODO: ON CLOSE SAVE WHICH PALETTE WAS LAST SELECTED, AND SELECT IT ON NEXT START
-//TODO: MAKE IT SO COLORS CAN BE REORDERED
 public class MainActivity extends Activity {
-	private MainActivity activity;
-	private ClipboardManager clipboard;
-	private ClipData clip;
-	private DrawerLayout drawer_layout;
-	private ActionBarDrawerToggle drawer_toggle;
-	private ListView palette_list_view;
-	private DragSortListView palette_view;
+	// All fragments should have a type added here, for keeping track of active fragment
+	private enum FragmentType {
+		MAIN,
+		SETTINGS
+	}
 
-	private ColorChooserDialog color_chooser_dialog;
-	private EditPaletteDialog edit_palette_dialog;
-
-	private PaletteList palette_list;
-
+	// Private Variables
+	private MainFragment main_fragment;
+	private SettingsFragment settings_fragment;
 	private Data data;
+	private PaletteList palette_list;
+	private FragmentType cur_fragment;
 
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(Bundle saved_state) {
+		super.onCreate(saved_state);
 		setContentView(R.layout.main);
-		activity	=	this;
-		clipboard	=	(ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-		/**
-		 * Setup Drawer for list of Palettes
-		 */
+		// If we're not being restored from a previous state then load main fragment
+		if(saved_state == null) {
+			// Initialize palette list
+			palette_list = PaletteList.init(this);
 
-		drawer_layout = (DrawerLayout)findViewById(R.id.rootDrawerLayout);
-		drawer_toggle = new ActionBarDrawerToggle(
-			this,
-			drawer_layout,
-			R.drawable.ic_navigation_drawer,
-			R.string.drawer_open,
-			R.string.drawer_close
-		) {
-			// Called when drawer closes
-			public void onDrawerClosed(View view) {
-				super.onDrawerClosed(view);
-				refresh();
-			}
+			// If data exists, load it
+			data = Data.init(this);
+			if(data.exists()) data.load();
 
-			// Called when drawer opens
-			public void onDrawerOpened(View drawer_view) {
-				super.onDrawerOpened(drawer_view);
-				refresh();
-			}
-		};
+			// Make sure on first load, first palette is selected instead of last
+			palette_list.setSelectedPosition(0);
 
-		drawer_layout.setDrawerListener(drawer_toggle);
+			ColorChooserDialog.init();
+			EditPaletteDialog.init();
 
-		// Set onclick listeners for 'new palette' buttons
-		findViewById(R.id.createFirstPaletteButton).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) { edit_palette_dialog.show(); }
-		});
-		findViewById(R.id.newPaletteButton).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) { edit_palette_dialog.show(); }
-		});
+			// Initialize fragments
+			main_fragment = new MainFragment();
+			settings_fragment = new SettingsFragment();
 
-		// Get palette list view by it's ID, setup PaletteList
-		palette_list_view	=	(ListView)findViewById(R.id.paletteListView);
-		palette_list		=	PaletteList.init(this);
-		palette_list_view.setAdapter(palette_list.getAdapter());
+			// Add the fragment to the fragment container
+			getFragmentManager().beginTransaction()
+				.replace(R.id.fragmentContainer, main_fragment)
+				.commit();
 
-		// Set on click listener for palette list view
-		palette_list_view.setOnItemClickListener(new ListView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView adapter_view, View view, int position, long id) {
-				// User clicked a list item, select it
-				palette_list.setSelectedPosition(position);
-			}
-		});
-
-
-		// If data exists, load it
-		data = Data.init(this, palette_list);
-		if(data.exists()) data.load();
-
-
-		/**
-		 * Setup list view for current Palette
-		 */
-
-
-		// Get palette view by its ID
-		palette_view = (DragSortListView)findViewById(R.id.paletteView);
-		palette_view.setOnItemClickListener(new ListView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView adapter_view, View view, int position, long id) {
-				String hex = ((palette_list.getSelectedPalette()).getColor(position)).getHex();
-				ClipData clip = ClipData.newPlainText("hex", hex);
-				clipboard.setPrimaryClip(clip);
-				Toast.makeText(activity, hex + " copied to clipboard", Toast.LENGTH_SHORT).show();
-			}
-		});
-
-		// Register context menu for color actions
-		registerForContextMenu(palette_view);
-
-		// Create dialogs
-		color_chooser_dialog	=	new ColorChooserDialog(this, data);
-		edit_palette_dialog		=	new EditPaletteDialog(this, palette_list, data);
-
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
-
-		refresh();
-	}
-
-
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		// Sync the toggle state after onRestoreInstanceState has occurred
-		drawer_toggle.syncState();
-	}
-
-
-	/**
-	 * Context menu for color actions.
-	 */
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo info) {
-		super.onCreateContextMenu(menu, view, info);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.color_actions, menu);
-	}
-
-
-	/**
-	 * Color action is selected.
-	 */
-	public boolean onContextItemSelected(MenuItem item) {
-		int position = (int)((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
-		final Palette selected_palette = palette_list.getSelectedPalette();
-		final CustomColor color = selected_palette.getColor(position);
-
-		switch(item.getItemId()) {
-			case R.id.copyHexAction:
-				String hex = color.getHex();
-				clip = ClipData.newPlainText("HEX", hex);
-				clipboard.setPrimaryClip(clip);
-				Toast.makeText(this, hex + " copied to clipboard", Toast.LENGTH_SHORT).show();
-				return true;
-
-			case R.id.copyRgbAction:
-				String rgb = "" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue();
-				clip = ClipData.newPlainText("RGB", rgb);
-				clipboard.setPrimaryClip(clip);
-				Toast.makeText(this, rgb + " copied to clipboard", Toast.LENGTH_SHORT).show();
-				return true;
-
-			case R.id.copyHsvAction:
-				String hsv = "" + color.getHue() + ", " + color.getSaturation() + ", " +
-						color.getValue();
-				clip = ClipData.newPlainText("HSV", hsv);
-				clipboard.setPrimaryClip(clip);
-				Toast.makeText(this, hsv + " copied to clipboard", Toast.LENGTH_SHORT).show();
-				return true;
-
-			case R.id.duplicateColorAction:
-				if(color.getName() != null) {
-					selected_palette.add(new CustomColor(color.getHex(), color.getName()));
-				} else {
-					selected_palette.add(new CustomColor(color.getHex()));
+			// When moving back on stack, set current fragment to main
+			getFragmentManager().addOnBackStackChangedListener(
+				new FragmentManager.OnBackStackChangedListener() {
+					public void onBackStackChanged() {
+						if(getFragmentManager().getBackStackEntryCount() == 0) {
+							cur_fragment = FragmentType.MAIN;
+							refresh();
+						}
+					}
 				}
-
-				data.save();
-				return true;
-
-			case R.id.editColorAction:
-				color_chooser_dialog.show(color);
-				return true;
-
-			case R.id.deleteColorAction:
-				selected_palette.remove(color);
-				return true;
-
-			default:
-				return super.onContextItemSelected(item);
+			);
 		}
 	}
 
 
 	@Override
-	public void onConfigurationChanged(Configuration new_config) {
-		super.onConfigurationChanged(new_config);
-		drawer_toggle.onConfigurationChanged(new_config);
+	public void onAttachFragment(Fragment fragment) {
+		if(fragment == main_fragment) {
+			cur_fragment = FragmentType.MAIN;
+		}
+
+		if(fragment == settings_fragment) {
+			cur_fragment = FragmentType.SETTINGS;
+		}
 	}
 
 
@@ -257,24 +124,35 @@ public class MainActivity extends Activity {
 	 */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-		// Set visibility of items in palette view
-		menu.findItem(R.id.addColorAction).setVisible(!isDrawerOpen());
+		// If in main fragment
+		if(cur_fragment == FragmentType.MAIN) {
+			// Make settings action visible
+			menu.findItem(R.id.settingsAction).setVisible(true);
 
-		// Set visibility of items in palette list view
-		menu.findItem(R.id.deletePaletteAction).setVisible(isDrawerOpen());
-		menu.findItem(R.id.editPaletteAction).setVisible(isDrawerOpen());
+			// Set visibility of items in palette view
+			menu.findItem(R.id.addColorAction).setVisible(!main_fragment.isDrawerOpen());
 
-		// If no palette added yet
-		if(palette_list.getSelectedPalette() == null) {
-			// Disable actions for palette
-			menu.findItem(R.id.deletePaletteAction).setEnabled(false);
-			menu.findItem(R.id.editPaletteAction).setEnabled(false);
-			menu.findItem(R.id.addColorAction).setEnabled(false);
-		} else {
-			// Else enable actions
-			menu.findItem(R.id.deletePaletteAction).setEnabled(true);
-			menu.findItem(R.id.editPaletteAction).setEnabled(true);
-			menu.findItem(R.id.addColorAction).setEnabled(true);
+			// Set visibility of items in palette list view
+			menu.findItem(R.id.deletePaletteAction).setVisible(main_fragment.isDrawerOpen());
+			menu.findItem(R.id.editPaletteAction).setVisible(main_fragment.isDrawerOpen());
+
+			// If no palette added yet
+			if(palette_list.getSelectedPalette() == null) {
+				// Disable actions for palette
+				menu.findItem(R.id.deletePaletteAction).setEnabled(false);
+				menu.findItem(R.id.editPaletteAction).setEnabled(false);
+				menu.findItem(R.id.addColorAction).setEnabled(false);
+			} else {
+				// Else enable actions
+				menu.findItem(R.id.deletePaletteAction).setEnabled(true);
+				menu.findItem(R.id.editPaletteAction).setEnabled(true);
+				menu.findItem(R.id.addColorAction).setEnabled(true);
+			}
+		} else { // Else hide all actions from main fragment
+			menu.findItem(R.id.deletePaletteAction).setVisible(false);
+			menu.findItem(R.id.editPaletteAction).setVisible(false);
+			menu.findItem(R.id.addColorAction).setVisible(false);
+			menu.findItem(R.id.settingsAction).setVisible(false);
 		}
 
 		return super.onPrepareOptionsMenu(menu);
@@ -287,12 +165,13 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// If drawer icon pressed, simply return true
-		if(drawer_toggle.onOptionsItemSelected(item)) {
+		if(main_fragment.drawerIconPressed(item)) {
 			return true;
 		}
 
 		// Else figure out what was pressed by ID
-		switch (item.getItemId()) {
+		else switch (item.getItemId()) {
+			// Delete palette
 			case R.id.deletePaletteAction:
 				// Confirm if palette should be deleted
 				new ConfirmationDialog(this, R.string.confirm_delete_palette_message,
@@ -301,7 +180,6 @@ public class MainActivity extends Activity {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							palette_list.removeSelectedPalette();
-							data.save();
 						}
 
 					})
@@ -312,19 +190,22 @@ public class MainActivity extends Activity {
 
 			// Show palette edit dialog
 			case R.id.editPaletteAction:
-				edit_palette_dialog.show(palette_list.getSelectedPalette());
+				EditPaletteDialog.getInstance().show(palette_list.getSelectedPalette(), getFragmentManager());
 				return true;
 
 			// Show color chooser dialog
 			case R.id.addColorAction:
-				color_chooser_dialog.show(palette_list.getSelectedPalette());
+				ColorChooserDialog.getInstance().show(palette_list.getSelectedPalette(), getFragmentManager());
 				return true;
 
-			//TODO: DECIDE IF THIS APP WILL EVEN HAVE SETTINGS
-			// Show settings activity
-			//case R.id.settingsAction:
-				////openSettings();
-				//return true;
+			// Show settings fragment
+			case R.id.settingsAction:
+				setFragment(settings_fragment);
+				return true;
+
+			case android.R.id.home:
+				onBackPressed();
+				return true;
 
 			default:
 				return super.onOptionsItemSelected(item);
@@ -332,35 +213,40 @@ public class MainActivity extends Activity {
 	}
 
 
-	/**
-	 * Refresh main view
-	 */
-	public void refresh() {
-		if(isDrawerOpen()) {
-			getActionBar().setTitle("Palettes");
-		}
-
-		// If color_list is empty, hide ListView and show new palette button
-		// Also set adapter for palette view
-		if(palette_list.getSelectedPalette() == null) {
-			palette_view.setVisibility(View.GONE);
-			findViewById(R.id.createFirstPaletteButton).setVisibility(View.VISIBLE);
-			if(!isDrawerOpen()) getActionBar().setTitle("");
-		} else {
-			if(!isDrawerOpen()) {
-				getActionBar().setTitle((palette_list.getSelectedPalette()).getName());
-				findViewById(R.id.createFirstPaletteButton).setVisibility(View.GONE);
-				palette_view.setVisibility(View.VISIBLE);
-				// Set adapter to main palette view to selected palette adapter
-				palette_view.setAdapter((palette_list.getSelectedPalette()).getAdapter());
-			}
-		}
-
-		invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+	@Override
+	protected void onPostCreate(Bundle saved_state) {
+		super.onPostCreate(saved_state);
+		// Sync the toggle state after onRestoreInstanceState has occurred
+		main_fragment.syncDrawerToggleState();
 	}
 
 
-	public boolean isDrawerOpen() {
-		return drawer_layout.isDrawerOpen(findViewById(R.id.paletteDrawer));
+	public MainFragment getMainFragment() {
+		return main_fragment;
+	}
+
+
+	public void setFragment(Fragment fragment) {
+		getFragmentManager().beginTransaction()
+			.replace(R.id.fragmentContainer, fragment)
+			.addToBackStack(null)
+			.commit();
+	}
+
+
+	public void refresh() {
+		if(cur_fragment == FragmentType.SETTINGS) {
+			getActionBar().setTitle(settings_fragment.getTitle());
+			main_fragment.hideDrawerToggle();
+		}
+
+		if(cur_fragment == FragmentType.MAIN) {
+			getActionBar().setTitle(main_fragment.getTitle());
+			main_fragment.showDrawerToggle();
+
+			main_fragment.refresh();
+		}
+
+		invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 	}
 }

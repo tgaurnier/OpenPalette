@@ -1,5 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright 2014 Tory Gaurnier                                                *
+ * ColorChooserDialog.java                                                     *
+ *                                                                             *
+ * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify        *
  * it under the terms of the GNU Lesser General Public License as published by *
@@ -20,6 +22,7 @@ package com.torygaurnier.openpalette;
 
 import java.lang.Integer;
 
+import android.app.FragmentManager;
 import android.app.DialogFragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,8 +49,8 @@ import com.larswerkman.holocolorpicker.ValueBar;
 
 
 public class ColorChooserDialog extends DialogFragment {
-	private final MainActivity activity;
-	private final Data data;
+	private static ColorChooserDialog instance = null;
+	private MainActivity activity;
 	private CustomColor color	=	null;
 	private Palette palette		=	null;
 
@@ -57,32 +60,53 @@ public class ColorChooserDialog extends DialogFragment {
 	private boolean rgb_changing_text		=	false;
 
 
-	public ColorChooserDialog(MainActivity _activity, Data _data) {
-		activity	=	_activity;
-		data		=	_data;
+	private ColorChooserDialog() {}
+
+
+	/**
+	 * Initialize ColorChooserDialog singleton
+	 */
+	public synchronized static ColorChooserDialog init() {
+		if(instance == null) {
+			instance = new ColorChooserDialog();
+		}
+
+		return instance;
+	}
+
+
+	public static ColorChooserDialog getInstance() {
+		return instance;
 	}
 
 
 	/**
 	 * Open dialog for new color, recieves palette to be added to.
 	 */
-	public void show(Palette _palette) {
+	public void show(Palette _palette, FragmentManager fragment_manager) {
 		palette = _palette;
-		super.show(activity.getFragmentManager(), "color_chooser_dialog");
+		super.show(fragment_manager, "color_chooser_dialog");
 	}
 
 
 	/**
 	 * Open dialog to edit color already added to a palette.
 	 */
-	public void show(CustomColor _color) {
+	public void show(CustomColor _color, FragmentManager fragment_manager) {
 		color = _color;
-		super.show(activity.getFragmentManager(), "color_chooser_dialog");
+		super.show(fragment_manager, "color_chooser_dialog");
 	}
 
 
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public void onCreate(Bundle saved_state) {
+		super.onCreate(saved_state);
+		activity	=	(MainActivity)getActivity();
+	}
+
+
+	@Override
+	public Dialog onCreateDialog(Bundle saved_state) {
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.choose_color_dialog_title);
@@ -237,7 +261,7 @@ public class ColorChooserDialog extends DialogFragment {
 						color.setHex("#" + (hex_input.getText()).toString());
 					}
 
-					data.save();
+					Data.getInstance().save();
 				}
 			}
 		);

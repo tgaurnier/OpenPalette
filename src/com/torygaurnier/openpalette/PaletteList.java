@@ -1,5 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright 2014 Tory Gaurnier                                                *
+ * PaletteList.java                                                            *
+ *                                                                             *
+ * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify        *
  * it under the terms of the GNU Lesser General Public License as published by *
@@ -47,45 +49,6 @@ public class PaletteList implements Iterable<Palette> {
 	private static PaletteList instance = null; // Keep track of singleton instance
 
 
-	public static PaletteList getInstance() {
-		return instance;
-	}
-
-
-	/**
-	 * Make init() synchronized so that it is thread safe.
-	 */
-	public synchronized static PaletteList init(MainActivity _activity) {
-		if(instance == null) {
-			instance = new PaletteList(_activity);
-		}
-
-		return instance;
-	}
-
-
-	@Override
-	public Iterator<Palette> iterator() {
-		return new Iterator<Palette>() {
-			private int i = 0;
-
-			@Override
-			public boolean hasNext() {
-				return i < adapter.getCount();
-			}
-
-			@Override
-			public Palette next() {
-				return getPalette(i++);
-			}
-
-			// Iterator shouldn't be able to remove Palettes
-			@Override
-			public void remove() {}
-		};
-	}
-
-
 	private PaletteList(MainActivity _activity) {
 		activity	=	_activity;
 		list		=	new ArrayList<Palette>();
@@ -119,6 +82,54 @@ public class PaletteList implements Iterable<Palette> {
 	}
 
 
+	public static PaletteList getInstance() {
+		return instance;
+	}
+
+
+	/**
+	 * Helper method to clear internal list from static init() method.
+	 */
+	private void init() {
+		adapter.clear();
+	}
+
+
+	/**
+	 * Initialize PaletteList singleton, if it is already instantiated then clear internal list.
+	 * Make synchronized so that it is thread safe.
+	 */
+	public synchronized static PaletteList init(MainActivity _activity) {
+		if(instance == null) {
+			instance = new PaletteList(_activity);
+		} else instance.init();
+
+		return instance;
+	}
+
+
+	@Override
+	public Iterator<Palette> iterator() {
+		return new Iterator<Palette>() {
+			private int i = 0;
+
+			@Override
+			public boolean hasNext() {
+				return i < adapter.getCount();
+			}
+
+			@Override
+			public Palette next() {
+				return getPalette(i++);
+			}
+
+			// Iterator shouldn't be able to remove Palettes
+			@Override
+			public void remove() {}
+		};
+	}
+
+
 	public ArrayAdapter<Palette> getAdapter() {
 		return adapter;
 	}
@@ -140,6 +151,7 @@ public class PaletteList implements Iterable<Palette> {
 		adapter.remove(palette);
 		if(!(selected_pos == 0 && adapter.getCount() > 0)) selected_pos--;
 		activity.refresh();
+		Data.getInstance().save();
 	}
 
 
@@ -226,6 +238,5 @@ public class PaletteList implements Iterable<Palette> {
 		adapter.add(palette);
 		adapter.sort(new PaletteComparator());
 		selected_pos = getPalettePosition(palette);
-		selected_pos = 0;
 	}
 }

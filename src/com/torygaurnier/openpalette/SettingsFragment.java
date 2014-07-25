@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * ConfirmationDialog.java                                                     *
+ * PaletteList.java                                                            *
  *                                                                             *
  * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
@@ -20,14 +20,43 @@
 package com.torygaurnier.openpalette;
 
 
-import android.app.AlertDialog;
+// Imports
+import android.os.Bundle;
+
+import android.preference.PreferenceFragment;
+import android.preference.Preference;
 
 
-public class ConfirmationDialog extends AlertDialog.Builder {
-	public ConfirmationDialog(MainActivity activity, int message, int title) {
-		super(activity);
-		setIcon(android.R.drawable.ic_dialog_alert);
-		setTitle(title);
-		setMessage(message);
+/**
+ * class SettingsFragment
+ *
+ * View that displays any settings/configurations.
+ */
+public class SettingsFragment extends PreferenceFragment {
+	private static SettingsFragment instance = null;
+	private MainActivity activity;
+
+
+	@Override
+	public void onCreate(Bundle saved_state) {
+		super.onCreate(saved_state);
+		activity = (MainActivity)getActivity();
+		addPreferencesFromResource(R.layout.settings);
+
+		Preference export_data = (Preference)findPreference("exportData");
+		export_data.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference pref) {
+				Data.getInstance().export();
+				return true;
+			}
+		});
+
+		activity.refresh();
+	}
+
+
+	public String getTitle() {
+		return getResources().getString(R.string.settings_fragment_title);
 	}
 }

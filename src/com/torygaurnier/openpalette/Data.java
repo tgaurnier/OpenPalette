@@ -1,5 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright 2014 Tory Gaurnier                                                *
+ * Data.java                                                                   *
+ *                                                                             *
+ * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify        *
  * it under the terms of the GNU Lesser General Public License as published by *
@@ -47,23 +49,23 @@ public class Data {
 	private static Data instance = null;
 
 
+	private Data(MainActivity _activity) {
+		activity		=	_activity;
+		palette_list	=	PaletteList.getInstance();
+	}
+
+
 	public static Data getInstance() {
 		return instance;
 	}
 
 
-	public static synchronized Data init(MainActivity _activity, PaletteList _palette_list) {
+	public static synchronized Data init(MainActivity _activity) {
 		if(instance == null) {
-			instance = new Data(_activity, _palette_list);
+			instance = new Data(_activity);
 		}
 
 		return instance;
-	}
-
-
-	private Data(MainActivity _activity, PaletteList _palette_list) {
-		activity		=	_activity;
-		palette_list	=	_palette_list;
 	}
 
 
@@ -218,5 +220,15 @@ public class Data {
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * Exports user data to OpenPalette/Exported, uses external sd card if it exists, else uses
+	 * internal storage.
+	 */
+	public void export() {
+		//TODO: THIS IS WHERE I'M AT
+		Toast.makeText(activity, "Data exported to sd card", Toast.LENGTH_SHORT).show();
 	}
 }

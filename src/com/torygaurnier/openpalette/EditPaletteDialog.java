@@ -1,5 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright 2014 Tory Gaurnier                                                *
+ * EditPaletteDialog.java                                                      *
+ *                                                                             *
+ * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify        *
  * it under the terms of the GNU Lesser General Public License as published by *
@@ -41,45 +43,67 @@ import android.os.Bundle;
 
 
 public class EditPaletteDialog extends DialogFragment {
-	private final MainActivity activity;
-	private final PaletteList palette_list;
-	private final Data data;
-	private Palette palette = null;
+	private static EditPaletteDialog instance = null;
+	private MainActivity activity;
+	private PaletteList palette_list;
+	private Palette palette;
 	private AlertDialog dialog;
 	private View view;
 	private TextView error_label;
 	private EditText input;
 	private int title = 0;
 
-	public EditPaletteDialog(MainActivity _activity, PaletteList _palette_list, Data _data) {
-		activity		=	_activity;
-		palette_list	=	_palette_list;
-		data			=	_data;
+
+	private EditPaletteDialog() {}
+
+
+	public static EditPaletteDialog getInstance() {
+		return instance;
+	}
+
+
+	/**
+	 * Initialize EditPaletteDialog singleton
+	 */
+	public synchronized static EditPaletteDialog init() {
+		if(instance == null) {
+				instance = new EditPaletteDialog();
+		}
+
+		return instance;
 	}
 
 
 	/**
 	 * Show dialog to edit palette
 	 */
-	public void show(Palette p) {
-		palette	=	p;
+	public void show(Palette _palette, FragmentManager fragment_manager) {
+		palette	=	_palette;
 		title	=	R.string.edit_palette_dialog_title;
 
-		super.show(activity.getFragmentManager(), "edit_palette_dialog");
+		super.show(fragment_manager, "edit_palette_dialog");
 	}
 
 
 	/**
 	 * Show dialog to create a new palette
 	 */
-	public void show() {
+	public void show(FragmentManager fragment_manager) {
 		palette = null;
-		super.show(activity.getFragmentManager(), "new_palette_dialog");
+		super.show(fragment_manager, "new_palette_dialog");
 	}
 
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+	public void onCreate(Bundle saved_state) {
+		super.onCreate(saved_state);
+		activity		=	(MainActivity)getActivity();
+		palette_list	=	PaletteList.getInstance();
+	}
+
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved_state) {
 		// Get error label
 		error_label = (TextView)view.findViewById(R.id.paletteNameErrorLabel);
 
@@ -127,12 +151,12 @@ public class EditPaletteDialog extends DialogFragment {
 			}
 		});
 
-		return super.onCreateView(inflater, container, savedState);
+		return super.onCreateView(inflater, container, saved_state);
 	}
 
 
 	@Override
-	public Dialog onCreateDialog(Bundle savedState) {
+	public Dialog onCreateDialog(Bundle saved_state) {
 		// Build the AlertDialog
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle((title == 0) ? R.string.new_palette_dialog_title : title);
@@ -160,7 +184,7 @@ public class EditPaletteDialog extends DialogFragment {
 						palette_list.refresh();
 					}
 
-					data.save();
+					Data.getInstance().save();
 				}
 			}
 		);

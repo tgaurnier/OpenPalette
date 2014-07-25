@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
+<!--
+  - R.string
+  -
+  - String resources for application.
+  -->
+
+
 <resources>
 	<string name="app_name">OpenPalette</string>
-	<string name="settings">Settings</string>
 	<string name="new_palette">Create a New Palette</string>
 	<string name="add_first_palette">Create Your First Palette</string>
 	<string name="new_palette_dialog_title">New Palette</string>
@@ -16,6 +24,16 @@
 	<string name="no">No</string>
 	<string name="ok_button">OK</string>
 	<string name="cancel_button">Cancel</string>
+
+
+	<string name="main_fragment_title">Palettes</string>
+	<string name="settings_fragment_title">Settings</string>
+
+
+	<!-- Settings Strings -->
+	<string name="settings">Settings</string>
+	<string name="export_data_title">Export Data</string>
+	<string name="export_data_summary">Exports user data to SDCARD/OpenPalette/Exported/</string>
 
 
 	<!-- Palette Action Strings -->

@@ -1,5 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright 2014 Tory Gaurnier                                                *
+ * DragSortArrayAdapter.java                                                   *
+ *                                                                             *
+ * Copyright 2014 Tory Gaurnier <tory.gaurnier@linuxmail.org>                  *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify        *
  * it under the terms of the GNU Lesser General Public License as published by *
@@ -45,7 +47,7 @@ public abstract class DragSortArrayAdapter<T> extends ArrayAdapter<T>
 		list.remove(from);
 		list.add(to, object);
 		notifyDataSetChanged();
-		(Data.getInstance()).save();
+		Data.getInstance().save();
 	}
 
 	@Override
