@@ -71,9 +71,6 @@ public class MainActivity extends Activity {
 			// Make sure on first load, first palette is selected instead of last
 			palette_list.setSelectedPosition(0);
 
-			//ColorChooserDialog.init(getFragmentManager());
-			//EditPaletteDialog.init(getFragmentManager());
-
 			// Initialize fragments
 			main_fragment = new MainFragment();
 			settings_fragment = new SettingsFragment();
@@ -101,9 +98,6 @@ public class MainActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		// Make sure to destroy ALL singletons
-		//EditPaletteDialog.destroy();
-		//ColorChooserDialog.destroy();
-		//ExportDialog.destroy();
 		PaletteList.destroy();
 		Data.destroy();
 		Msg.destroy();
