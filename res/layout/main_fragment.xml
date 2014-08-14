@@ -27,8 +27,8 @@
 			dslv:remove_mode="flingRemove"
 			dslv:drag_start_mode="onMove" />
 		<Button
-			android:layout_width="wrap_content"
 			android:id="@+id/createFirstPaletteButton"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
 			android:text="@string/add_first_palette"

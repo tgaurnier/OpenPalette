@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+  - R.layout.import_view
+  -
+  - This is the layout for the view of the import palettes dialog.
+  -->
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+		<Button
+			android:id="@+id/importViewSelectAll"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:text="@string/select_all"
+			android:textSize="15sp" />
+		<Button
+			android:id="@+id/importViewSelectNone"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:text="@string/select_none"
+			android:textSize="15sp" />
+		<Button
+			android:id="@+id/importViewSelectInvert"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:text="@string/select_invert"
+			android:textSize="15sp" />
+	</LinearLayout>
+	<ListView
+		android:id="@+id/importListView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:choiceMode="singleChoice"
+		android:divider="@android:color/transparent"
+		android:dividerHeight="0dp" />
+</LinearLayout>

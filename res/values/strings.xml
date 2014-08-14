@@ -12,28 +12,42 @@
 	<string name="app_name">OpenPalette</string>
 	<string name="new_palette">Create a New Palette</string>
 	<string name="add_first_palette">Create Your First Palette</string>
-	<string name="new_palette_dialog_title">New Palette</string>
-	<string name="edit_palette_dialog_title">Edit Palette</string>
-	<string name="edit_palette_dialog_message">Name for the Palette</string>
-	<string name="choose_color_dialog_title">Choose a Color</string>
 	<string name="drawer_close">Close Palette Drawer</string>
 	<string name="drawer_open">Open Palette Drawer</string>
 
 
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
-	<string name="ok_button">OK</string>
-	<string name="cancel_button">Cancel</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+	<string name="select_all">Select All</string>
+	<string name="select_none">Select None</string>
+	<string name="select_invert">Invert Selection</string>
 
 
 	<string name="main_fragment_title">Palettes</string>
 	<string name="settings_fragment_title">Settings</string>
 
 
+	<!-- Dialog Strings -->
+	<string name="new_palette_dialog_title">New Palette</string>
+	<string name="edit_palette_dialog_title">Edit Palette</string>
+	<string name="edit_palette_dialog_message">Name for the Palette</string>
+	<string name="color_chooser_dialog_title">Choose a Color</string>
+	<string name="export_dialog_title">Export Palettes</string>
+	<string name="import_dialog_title">Import Palettes</string>
+	<string name="confirm_replace_palette_title">Confirm Replace Palette</string>
+	<!-- confirm_replace_palette_message is meant to be appended onto "Palette Name" -->
+	<string name="confirm_replace_palette_message">&#160;already exists, replace?</string>
+	<string name="do_not_ask_again">Don\'t ask again</string>
+
+
 	<!-- Settings Strings -->
 	<string name="settings">Settings</string>
 	<string name="export_data_title">Export Data</string>
-	<string name="export_data_summary">Exports user data to SDCARD/OpenPalette/Exported/</string>
+	<string name="export_data_summary">Exports palettes to SDCARD/OpenPalette/Exported Palettes/</string>
+	<string name="import_data_title">Import Data</string>
+	<string name="import_data_summary">Imports palettes from SDCARD/OpenPalette/Exported Palettes/</string>
 
 
 	<!-- Palette Action Strings -->

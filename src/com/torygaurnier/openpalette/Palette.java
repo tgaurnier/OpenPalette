@@ -38,15 +38,15 @@ import java.lang.Iterable;
 import com.mobeta.android.dslv.DragSortListView;
 
 
-public class Palette implements Iterable<CustomColor> {
+public class Palette implements Iterable<HexColor> {
 	private final MainActivity activity;
-	private final ArrayAdapter<CustomColor> adapter;
-	private final ArrayList<CustomColor> list;
+	private final ArrayAdapter<HexColor> adapter;
+	private final ArrayList<HexColor> list;
 	private String name = new String();
 
 	public Palette(MainActivity _activity) {
 		activity	=	_activity;
-		list		=	new ArrayList<CustomColor>();
+		list		=	new ArrayList<HexColor>();
 		adapter		=	initAdapter();
 		adapter.setNotifyOnChange(true);
 	}
@@ -55,15 +55,15 @@ public class Palette implements Iterable<CustomColor> {
 	public Palette(MainActivity _activity, String palette_name) {
 		activity	=	_activity;
 		name		=	palette_name;
-		list		=	new ArrayList<CustomColor>();
+		list		=	new ArrayList<HexColor>();
 		adapter		=	initAdapter();
 		adapter.setNotifyOnChange(true);
 	}
 
 
 	@Override
-	public Iterator<CustomColor> iterator() {
-		return new Iterator<CustomColor>() {
+	public Iterator<HexColor> iterator() {
+		return new Iterator<HexColor>() {
 			private int i = 0;
 
 			@Override
@@ -72,7 +72,7 @@ public class Palette implements Iterable<CustomColor> {
 			}
 
 			@Override
-			public CustomColor next() {
+			public HexColor next() {
 				return getColor(i++);
 			}
 
@@ -84,7 +84,7 @@ public class Palette implements Iterable<CustomColor> {
 
 
 	private DragSortArrayAdapter initAdapter() {
-		return new DragSortArrayAdapter<CustomColor>(activity, R.layout.palette_item, list) {
+		return new DragSortArrayAdapter<HexColor>(activity, R.layout.palette_item, list) {
 			// This callback method sets up each item view in the list
 			@Override
 			public View getView(int position, View convert_view, ViewGroup parent) {
@@ -113,32 +113,29 @@ public class Palette implements Iterable<CustomColor> {
 	/**
 	 * Remove selected palette.
 	 */
-	public void remove(final CustomColor color) {
+	public void remove(final HexColor color) {
 		// Confirm if color should be deleted
-		new ConfirmationDialog(activity, R.string.confirm_delete_color_message,
-				R.string.confirm_delete_color_title)
-			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					adapter.remove(color);
-					Data.getInstance().save();
+		new ConfirmationDialog(activity, R.string.confirm_delete_color_title)
+			.confirm(R.string.confirm_delete_color_message,
+				new ConfirmationDialog.OnChoiceListener() {
+					public void onAccept() {
+						adapter.remove(color);
+						Data.getInstance().save();
+					}
 				}
-
-			})
-			.setNegativeButton(R.string.no, null)
-			.show();
+			);
 	}
 
 
 	/**
 	 * Adds color to PaletteAdapter
 	 */
-	public void add(CustomColor color) {
+	public void add(HexColor color) {
 		adapter.add(color);
 	}
 
 
-	public ArrayAdapter<CustomColor> getAdapter() {
+	public ArrayAdapter<HexColor> getAdapter() {
 		return adapter;
 	}
 
@@ -146,7 +143,7 @@ public class Palette implements Iterable<CustomColor> {
 	/**
 	 * Returns color at position, or null if position not found.
 	 */
-	public CustomColor getColor(int position) {
+	public HexColor getColor(int position) {
 		if(adapter.getCount() > position) {
 			return adapter.getItem(position);
 		}

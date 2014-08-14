@@ -12,6 +12,9 @@
 	<Preference
 		android:title="@string/export_data_title"
 		android:summary="@string/export_data_summary"
-		android:key="exportData">
-	</Preference>
+		android:key="exportData" />
+	<Preference
+		android:title="@string/import_data_title"
+		android:summary="@string/import_data_summary"
+		android:key="importData" />
 </PreferenceScreen>

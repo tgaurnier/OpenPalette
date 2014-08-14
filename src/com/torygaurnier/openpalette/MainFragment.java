@@ -24,32 +24,19 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 
 import android.os.Bundle;
-
 import android.app.DialogFragment;
 import android.app.Fragment;
-
 import android.content.res.Configuration;
-import android.content.ClipboardManager;
-import android.content.DialogInterface;
-import android.content.ClipData;
-
-import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.ContextMenu;
-import android.view.ViewGroup;
-import android.view.MenuItem;
-import android.view.Menu;
-import android.view.View;
-
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Button;
-import android.widget.Toast;
+import android.content.*;
+import android.view.*;
+import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.mobeta.android.dslv.DragSortListView;
+
+import com.torygaurnier.util.Msg;
 
 
 public class MainFragment extends Fragment {
@@ -109,10 +96,10 @@ public class MainFragment extends Fragment {
 
 		// Set onclick listeners for 'new palette' buttons
 		view.findViewById(R.id.createFirstPaletteButton).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) { EditPaletteDialog.getInstance().show(activity.getFragmentManager()); }
+			public void onClick(View view) { new EditPaletteDialog(activity).show(); }
 		});
 		view.findViewById(R.id.newPaletteButton).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) { EditPaletteDialog.getInstance().show(activity.getFragmentManager()); }
+			public void onClick(View view) { new EditPaletteDialog(activity).show(); }
 		});
 
 		// Get palette list view by it's ID, setup PaletteList
@@ -138,10 +125,10 @@ public class MainFragment extends Fragment {
 		palette_view.setOnItemClickListener(new ListView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView adapter_view, View view, int position, long id) {
-				String hex = ((palette_list.getSelectedPalette()).getColor(position)).getHex();
+				String hex = ((HexColor)adapter_view.getItemAtPosition(position)).getHex();
 				ClipData clip = ClipData.newPlainText("hex", hex);
 				clipboard.setPrimaryClip(clip);
-				Toast.makeText(activity, hex + " copied to clipboard", Toast.LENGTH_SHORT).show();
+				Msg.log(Msg.INFO, "palette_view->onItemClick()", hex + " copied to clipboard");
 			}
 		});
 
@@ -173,21 +160,21 @@ public class MainFragment extends Fragment {
 	public boolean onContextItemSelected(MenuItem item) {
 		int position = (int)((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
 		final Palette selected_palette = palette_list.getSelectedPalette();
-		final CustomColor color = selected_palette.getColor(position);
+		final HexColor color = selected_palette.getColor(position);
 
 		switch(item.getItemId()) {
 			case R.id.copyHexAction:
 				String hex = color.getHex();
 				clip = ClipData.newPlainText("HEX", hex);
 				clipboard.setPrimaryClip(clip);
-				Toast.makeText(activity, hex + " copied to clipboard", Toast.LENGTH_SHORT).show();
+				Msg.log(Msg.INFO, "onContextItemSelected()", hex + " copied to clipboard");
 				return true;
 
 			case R.id.copyRgbAction:
 				String rgb = "" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue();
 				clip = ClipData.newPlainText("RGB", rgb);
 				clipboard.setPrimaryClip(clip);
-				Toast.makeText(activity, rgb + " copied to clipboard", Toast.LENGTH_SHORT).show();
+				Msg.log(Msg.INFO, "onContextItemSelected()", rgb + " copied to clipboard");
 				return true;
 
 			case R.id.copyHsvAction:
@@ -195,21 +182,21 @@ public class MainFragment extends Fragment {
 						color.getValue();
 				clip = ClipData.newPlainText("HSV", hsv);
 				clipboard.setPrimaryClip(clip);
-				Toast.makeText(activity, hsv + " copied to clipboard", Toast.LENGTH_SHORT).show();
+				Msg.log(Msg.INFO, "onContextItemSelected()", hsv + " copied to clipboard");
 				return true;
 
 			case R.id.duplicateColorAction:
 				if(color.getName() != null) {
-					selected_palette.add(new CustomColor(color.getHex(), color.getName()));
+					selected_palette.add(new HexColor(color.getHex(), color.getName()));
 				} else {
-					selected_palette.add(new CustomColor(color.getHex()));
+					selected_palette.add(new HexColor(color.getHex()));
 				}
 
 				Data.getInstance().save();
 				return true;
 
 			case R.id.editColorAction:
-				ColorChooserDialog.getInstance().show(color, activity.getFragmentManager());
+				new ColorChooserDialog(activity).show(color);
 				return true;
 
 			case R.id.deleteColorAction:

@@ -34,6 +34,8 @@ import java.util.Iterator;
 
 import java.lang.Iterable;
 
+import com.torygaurnier.util.Msg;
+
 
 /**
  * PaletteList
@@ -52,32 +54,7 @@ public class PaletteList implements Iterable<Palette> {
 	private PaletteList(MainActivity _activity) {
 		activity	=	_activity;
 		list		=	new ArrayList<Palette>();
-		adapter		=	new ArrayAdapter<Palette>(activity, R.layout.palette_list_item, list) {
-			// This callback method sets up each item view in the list.
-			@Override
-			public View getView(int position, View convert_view, ViewGroup parent) {
-				// Get root layout of pallettelistitem
-				LayoutInflater inflater = (LayoutInflater)activity.getSystemService(
-						Context.LAYOUT_INFLATER_SERVICE);
-				View view = inflater.inflate(R.layout.palette_list_item, parent, false);
-				// Get text view, and set it's text to palette name
-				TextView text_view = (TextView)view.findViewById(R.id.paletteListItemText);
-				text_view.setText((list.get(position)).getName());
-
-				// Set color based on selected state
-				if(selected_pos == position) {
-					text_view.setBackgroundColor(
-						activity.getResources().getColor(android.R.color.holo_blue_light)
-					);
-				} else {
-					text_view.setBackgroundColor(
-						activity.getResources().getColor(android.R.color.transparent)
-					);
-				}
-
-				return view;
-			}
-		};
+		adapter		=	initAdapter();
 		adapter.setNotifyOnChange(true);
 	}
 
@@ -99,12 +76,17 @@ public class PaletteList implements Iterable<Palette> {
 	 * Initialize PaletteList singleton, if it is already instantiated then clear internal list.
 	 * Make synchronized so that it is thread safe.
 	 */
-	public synchronized static PaletteList init(MainActivity _activity) {
+	public static synchronized PaletteList init(MainActivity _activity) {
 		if(instance == null) {
 			instance = new PaletteList(_activity);
 		} else instance.init();
 
 		return instance;
+	}
+
+
+	public static synchronized void destroy() {
+		instance = null;
 	}
 
 
@@ -140,6 +122,23 @@ public class PaletteList implements Iterable<Palette> {
 	 */
 	public void refresh() {
 		adapter.notifyDataSetChanged();
+	}
+
+
+	/**
+	 * Removes palette with name, returns true on success, false if palette with name doesn't exist.
+	 */
+	public boolean remove(String name) {
+		for(Palette palette : this) {
+			if((palette.getName()).equals(name)) {
+				adapter.remove(palette);
+				activity.refresh();
+				Data.getInstance().save();
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
@@ -189,7 +188,7 @@ public class PaletteList implements Iterable<Palette> {
 	 */
 	public Palette getSelectedPalette() {
 		if(adapter.getCount() == 0 || selected_pos == -1) return null;
-		else return adapter.getItem(selected_pos);
+		else return getPalette(selected_pos);
 	}
 
 
@@ -207,9 +206,9 @@ public class PaletteList implements Iterable<Palette> {
 	 * Returns palette with name, or null if palette doesn't exist
 	 */
 	public Palette getPalette(String name) {
-		for(int i = 0; i < adapter.getCount(); i++) {
-			if(adapter.getItem(i).getName().equals(name)) {
-				return adapter.getItem(i);
+		for(Palette palette : this) {
+			if(palette.getName().equals(name)) {
+				return palette;
 			}
 		}
 
@@ -238,5 +237,35 @@ public class PaletteList implements Iterable<Palette> {
 		adapter.add(palette);
 		adapter.sort(new PaletteComparator());
 		selected_pos = getPalettePosition(palette);
+	}
+
+
+	private ArrayAdapter<Palette> initAdapter() {
+		return new ArrayAdapter<Palette>(activity, R.layout.palette_list_item, list) {
+			// This callback method sets up each item view in the list.
+			@Override
+			public View getView(int position, View convert_view, ViewGroup parent) {
+				// Get root layout of pallettelistitem
+				LayoutInflater inflater = (LayoutInflater)activity.getSystemService(
+						Context.LAYOUT_INFLATER_SERVICE);
+				View view = inflater.inflate(R.layout.palette_list_item, parent, false);
+				// Get text view, and set it's text to palette name
+				TextView text_view = (TextView)view.findViewById(R.id.paletteListItemText);
+				text_view.setText((list.get(position)).getName());
+
+				// Set color based on selected state
+				if(selected_pos == position) {
+					text_view.setBackgroundColor(
+						activity.getResources().getColor(android.R.color.holo_blue_light)
+					);
+				} else {
+					text_view.setBackgroundColor(
+						activity.getResources().getColor(android.R.color.transparent)
+					);
+				}
+
+				return view;
+			}
+		};
 	}
 }

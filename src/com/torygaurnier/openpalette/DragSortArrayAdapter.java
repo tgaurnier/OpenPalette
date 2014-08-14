@@ -21,7 +21,6 @@ package com.torygaurnier.openpalette;
 
 
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import android.content.DialogInterface;
 
@@ -53,22 +52,17 @@ public abstract class DragSortArrayAdapter<T> extends ArrayAdapter<T>
 	@Override
 	public void remove(final int position) {
 		// Confirm removal
-		new ConfirmationDialog(activity, R.string.confirm_delete_color_message,
-				R.string.confirm_delete_color_title)
-			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					remove(getItem(position));
-					Data.getInstance().save();
+		new ConfirmationDialog(activity, R.string.confirm_delete_color_title)
+			.confirm(R.string.confirm_delete_color_message,
+				new ConfirmationDialog.OnChoiceListener() {
+					public void onAccept() {
+						remove(getItem(position));
+						Data.getInstance().save();
+					}
+					public void onDecline() {
+						activity.refresh();
+					}
 				}
-
-			})
-			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					activity.refresh();
-				}
-			})
-			.show();
+			);
 	}
 }

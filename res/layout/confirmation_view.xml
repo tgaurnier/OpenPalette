@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+  - R.layout.confirmation_view
+  -
+  - This is the layout for the confirmation dialog, it contains a message and an optional "Don't ask
+  - again" checkbox.
+  -->
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+	<TextView
+		android:id="@+id/confirmationViewMessage"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="10dp"
+		android:textSize="18sp" />
+	<CheckBox
+		android:id="@+id/confirmationViewCheckBox"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/do_not_ask_again"
+		android:visibility="gone" />
+</LinearLayout>

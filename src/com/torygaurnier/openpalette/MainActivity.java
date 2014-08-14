@@ -22,19 +22,13 @@ package com.torygaurnier.openpalette;
 
 import android.os.Bundle;
 
-import android.app.FragmentManager;
-import android.app.Activity;
-import android.app.Fragment;
-
+import android.app.*;
 import android.content.DialogInterface;
-
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.Menu;
-
-import android.widget.Toast;
+import android.view.*;
 
 import java.util.ArrayList;
+
+import com.torygaurnier.util.Msg;
 
 
 //TODO: ON CLOSE SAVE WHICH PALETTE WAS LAST SELECTED, AND SELECT IT ON NEXT START
@@ -47,6 +41,7 @@ public class MainActivity extends Activity {
 
 	// Private Variables
 	private MainFragment main_fragment;
+	private Config config;
 	private SettingsFragment settings_fragment;
 	private Data data;
 	private PaletteList palette_list;
@@ -60,18 +55,24 @@ public class MainActivity extends Activity {
 
 		// If we're not being restored from a previous state then load main fragment
 		if(saved_state == null) {
+			Msg.init(this);
+
+			// Initialize config
+			Config.init();
+
 			// Initialize palette list
 			palette_list = PaletteList.init(this);
 
 			// If data exists, load it
-			data = Data.init(this);
+			Data.init(this);
+			data = Data.getInstance();
 			if(data.exists()) data.load();
 
 			// Make sure on first load, first palette is selected instead of last
 			palette_list.setSelectedPosition(0);
 
-			ColorChooserDialog.init();
-			EditPaletteDialog.init();
+			//ColorChooserDialog.init(getFragmentManager());
+			//EditPaletteDialog.init(getFragmentManager());
 
 			// Initialize fragments
 			main_fragment = new MainFragment();
@@ -94,6 +95,20 @@ public class MainActivity extends Activity {
 				}
 			);
 		}
+	}
+
+
+	@Override
+	public void onDestroy() {
+		// Make sure to destroy ALL singletons
+		//EditPaletteDialog.destroy();
+		//ColorChooserDialog.destroy();
+		//ExportDialog.destroy();
+		PaletteList.destroy();
+		Data.destroy();
+		Msg.destroy();
+
+		super.onDestroy();
 	}
 
 
@@ -174,28 +189,25 @@ public class MainActivity extends Activity {
 			// Delete palette
 			case R.id.deletePaletteAction:
 				// Confirm if palette should be deleted
-				new ConfirmationDialog(this, R.string.confirm_delete_palette_message,
-						R.string.confirm_delete_palette_title)
-					.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							palette_list.removeSelectedPalette();
+				new ConfirmationDialog(this, R.string.confirm_delete_palette_title)
+					.confirm(R.string.confirm_delete_palette_message,
+						new ConfirmationDialog.OnChoiceListener() {
+							public void onAccept() {
+								palette_list.removeSelectedPalette();
+							}
 						}
-
-					})
-					.setNegativeButton(R.string.no, null)
-					.show();
+					);
 
 				return true;
 
 			// Show palette edit dialog
 			case R.id.editPaletteAction:
-				EditPaletteDialog.getInstance().show(palette_list.getSelectedPalette(), getFragmentManager());
+				new EditPaletteDialog(this).show(palette_list.getSelectedPalette());
 				return true;
 
 			// Show color chooser dialog
 			case R.id.addColorAction:
-				ColorChooserDialog.getInstance().show(palette_list.getSelectedPalette(), getFragmentManager());
+				new ColorChooserDialog(this).show(palette_list.getSelectedPalette());
 				return true;
 
 			// Show settings fragment

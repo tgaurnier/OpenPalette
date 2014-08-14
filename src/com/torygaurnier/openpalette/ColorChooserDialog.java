@@ -20,39 +20,35 @@
 package com.torygaurnier.openpalette;
 
 
-import java.lang.Integer;
-
-import android.app.FragmentManager;
-import android.app.DialogFragment;
-import android.app.AlertDialog;
-import android.app.Dialog;
-
-import android.content.DialogInterface;
-import android.content.Context;
-
-import android.widget.RelativeLayout;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import android.view.LayoutInflater;
-import android.view.View;
-
-import android.text.Editable;
-import android.text.TextWatcher;
-
 import android.os.Bundle;
+import android.app.*;
+import android.content.*;
+import android.widget.*;
+import android.view.*;
+import android.text.*;
 import android.graphics.Color;
+
+import java.lang.Integer;
 
 import com.larswerkman.holocolorpicker.SaturationBar;
 import com.larswerkman.holocolorpicker.ColorPicker;
 import com.larswerkman.holocolorpicker.ValueBar;
 
+import com.torygaurnier.dialog.SimpleDialog;
 
-public class ColorChooserDialog extends DialogFragment {
-	private static ColorChooserDialog instance = null;
-	private MainActivity activity;
-	private CustomColor color	=	null;
+
+
+public class ColorChooserDialog extends SimpleDialog {
+	private HexColor color		=	null;
 	private Palette palette		=	null;
+	private EditText name_input;
+	private EditText hex_input;
+	private EditText red_input;
+	private EditText grn_input;
+	private EditText blu_input;
+	private ColorPicker color_picker;
+	private SaturationBar sat_bar;
+	private ValueBar val_bar;
 
 	// Used to keep Listeners from changing items that are being edited by user
 	private boolean picker_changing_text	=	false;
@@ -60,77 +56,81 @@ public class ColorChooserDialog extends DialogFragment {
 	private boolean rgb_changing_text		=	false;
 
 
-	private ColorChooserDialog() {}
-
-
-	/**
-	 * Initialize ColorChooserDialog singleton
-	 */
-	public synchronized static ColorChooserDialog init() {
-		if(instance == null) {
-			instance = new ColorChooserDialog();
-		}
-
-		return instance;
-	}
-
-
-	public static ColorChooserDialog getInstance() {
-		return instance;
+	public ColorChooserDialog(Activity activity) {
+		super(activity);
+		setTitle(R.string.color_chooser_dialog_title);
+		setOkText(R.string.ok);
+		setCancelText(R.string.cancel);
 	}
 
 
 	/**
 	 * Open dialog for new color, recieves palette to be added to.
 	 */
-	public void show(Palette _palette, FragmentManager fragment_manager) {
+	public void show(Palette _palette) {
 		palette = _palette;
-		super.show(fragment_manager, "color_chooser_dialog");
+		show();
 	}
 
 
 	/**
 	 * Open dialog to edit color already added to a palette.
 	 */
-	public void show(CustomColor _color, FragmentManager fragment_manager) {
+	public void show(HexColor _color) {
 		color = _color;
-		super.show(fragment_manager, "color_chooser_dialog");
+		show();
 	}
 
 
-	@Override
-	public void onCreate(Bundle saved_state) {
-		super.onCreate(saved_state);
-		activity	=	(MainActivity)getActivity();
+	public void onOkClicked(DialogInterface dialog_interface, int id) {
+		// If color is null, we are adding a new color to palette
+		if(color == null) {
+			// If name input is not empty, then add color with name, else just add color
+			if(name_input.length() > 0) {
+				palette.add(
+					new HexColor(
+						"#" + (hex_input.getText()).toString(),
+						(name_input.getText()).toString()
+					)
+				);
+			} else {
+				palette.add(new HexColor("#" + (hex_input.getText()).toString()));
+			}
+		} else { // Else we are editing an existing color
+			if(name_input.length() > 0) {
+				color.setName((name_input.getText()).toString());
+			} else {
+				color.setName("");
+			}
+
+			color.setHex("#" + (hex_input.getText()).toString());
+		}
+
+		Data.getInstance().save();
+		((MainActivity)activity).refresh();
 	}
 
 
-	@Override
-	public Dialog onCreateDialog(Bundle saved_state) {
-		// Use the Builder class for convenient dialog construction
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.choose_color_dialog_title);
-
+	protected View createView() {
 		// Inflate layout color chooser view and set to builder
-		LayoutInflater layout_inflater = getActivity().getLayoutInflater();
+		LayoutInflater layout_inflater = activity.getLayoutInflater();
 		View view = layout_inflater.inflate(R.layout.color_chooser_view, null);
-		builder.setView(view);
 
 		// Get views by IDs
-		final EditText name_input		=	(EditText)view.findViewById(R.id.colorNameInput);
-		final EditText hex_input		=	(EditText)view.findViewById(R.id.hexInput);
-		final EditText red_input		=	(EditText)view.findViewById(R.id.redInput);
-		final EditText grn_input		=	(EditText)view.findViewById(R.id.greenInput);
-		final EditText blu_input		=	(EditText)view.findViewById(R.id.blueInput);
-		final ColorPicker color_picker	=	(ColorPicker)view.findViewById(R.id.colorPicker);
-		final SaturationBar sat_bar		=	(SaturationBar)view.findViewById(R.id.saturationBar);
-		final ValueBar val_bar			=	(ValueBar)view.findViewById(R.id.valueBar);
+		name_input		=	(EditText)view.findViewById(R.id.colorNameInput);
+		hex_input		=	(EditText)view.findViewById(R.id.hexInput);
+		red_input		=	(EditText)view.findViewById(R.id.redInput);
+		grn_input		=	(EditText)view.findViewById(R.id.greenInput);
+		blu_input		=	(EditText)view.findViewById(R.id.blueInput);
+		color_picker	=	(ColorPicker)view.findViewById(R.id.colorPicker);
+		sat_bar			=	(SaturationBar)view.findViewById(R.id.saturationBar);
+		val_bar			=	(ValueBar)view.findViewById(R.id.valueBar);
 
 		// Connect bars to color picker
 		color_picker.addSaturationBar(sat_bar);
 		color_picker.addValueBar(val_bar);
 
-		// If not editing color, then don't show old color in center, and set color to black,
+		// If not editing color, then don't show old color in center, and set color to green,
 		// otherwise show old color in center and also set it as the starting color
 		if(color == null) {
 			color_picker.setShowOldCenterColor(false);
@@ -233,59 +233,6 @@ public class ColorChooserDialog extends DialogFragment {
 		grn_input.addTextChangedListener(textWatcher);
 		blu_input.addTextChangedListener(textWatcher);
 
-		builder.setPositiveButton(
-			R.string.ok_button,
-			new DialogInterface.OnClickListener() {
-				// User clicked OK, add color to palette
-				public void onClick(DialogInterface dialog, int id) {
-					// If color is null, we are adding a new color to palette
-					if(color == null) {
-						// If name input is not empty, then add color with name, else just add color
-						if(name_input.length() > 0) {
-							palette.add(
-								new CustomColor(
-									"#" + (hex_input.getText()).toString(),
-									(name_input.getText()).toString()
-								)
-							);
-						} else {
-							palette.add(new CustomColor("#" + (hex_input.getText()).toString()));
-						}
-					} else { // Else we are editing an existing color
-						if(name_input.length() > 0) {
-							color.setName((name_input.getText()).toString());
-						} else {
-							color.setName("");
-						}
-
-						color.setHex("#" + (hex_input.getText()).toString());
-					}
-
-					Data.getInstance().save();
-				}
-			}
-		);
-
-		builder.setNegativeButton(
-			R.string.cancel_button,
-			new DialogInterface.OnClickListener() {
-				// User cancelled the dialog, don't create palette
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			}
-		);
-
-		// Create the AlertDialog object and return it
-		return builder.create();
-	}
-
-
-	@Override
-	public void onDestroy() {
-		color	=	null;
-		palette	=	null;
-		activity.refresh();
-		super.onDestroy();
+		return view;
 	}
 }

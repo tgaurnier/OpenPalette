@@ -43,11 +43,24 @@ public class SettingsFragment extends PreferenceFragment {
 		activity = (MainActivity)getActivity();
 		addPreferencesFromResource(R.layout.settings);
 
+		// Export data option
 		Preference export_data = (Preference)findPreference("exportData");
 		export_data.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference pref) {
-				Data.getInstance().export();
+				ExportDialog export_dialog = new ExportDialog(activity);
+				export_dialog.show();
+				return true;
+			}
+		});
+
+		// Import data option
+		Preference import_data = (Preference)findPreference("importData");
+		import_data.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference pref) {
+				ImportDialog import_dialog = new ImportDialog(activity);
+				import_dialog.show();
 				return true;
 			}
 		});
@@ -57,6 +70,6 @@ public class SettingsFragment extends PreferenceFragment {
 
 
 	public String getTitle() {
-		return getResources().getString(R.string.settings_fragment_title);
+		return activity.getResources().getString(R.string.settings_fragment_title);
 	}
 }
