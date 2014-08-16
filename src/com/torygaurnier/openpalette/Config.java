@@ -21,27 +21,29 @@ package com.torygaurnier.openpalette;
 
 
 import android.os.Environment;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import java.io.File;
 
+import com.torygaurnier.util.Msg;
+
 
 public class Config {
-	private static Config instance = null;
-	private String export_dir;
+	private static Config instance			=	null;
+	private MainActivity activity			=	null;
+	private String export_dir				=	null;
+	private SharedPreferences preferences	=	null;
 
 
-	private Config() {
-		export_dir	=	Environment.getExternalStorageDirectory().getAbsolutePath()
-						+ "/OpenPalette/Exported Palettes/";
-
-		// Make sure export directory exists
-		(new File(export_dir)).mkdirs();
+	private class Key {
+		final static String SELECTED_PALETTE = "SelectedPalette";
 	}
 
 
-	public static synchronized void init() {
+	public static synchronized void init(MainActivity activity) {
 		if(instance == null) {
-			instance = new Config();
+			instance = new Config(activity);
 		}
 	}
 
@@ -56,6 +58,27 @@ public class Config {
 	}
 
 
+	/**
+	 * Used to remember last used palette when opening app. Returns null if no selected palette was
+	 * saved.
+	 */
+	public String getSelectedPalette() {
+		return preferences.getString(Key.SELECTED_PALETTE, null);
+	}
+
+
+	/**
+	 * Used to remember selected palette on close.
+	 */
+	public void setSelectedPalette(String name) {
+		if(!name.equals(getSelectedPalette())) {
+			(preferences.edit())
+				.putString(Key.SELECTED_PALETTE, name)
+				.commit();
+		}
+	}
+
+
 	public String getExportDir() {
 		return export_dir;
 	}
@@ -63,5 +86,16 @@ public class Config {
 
 	public void setExportDir(String path) {
 		export_dir = path;
+	}
+
+
+	private Config(MainActivity activity) {
+		this.activity	=	activity;
+		preferences		=	activity.getPreferences(Context.MODE_PRIVATE);
+		export_dir		=	Environment.getExternalStorageDirectory().getAbsolutePath()
+						+ "/OpenPalette/Exported Palettes/";
+
+		// Make sure export directory exists
+		(new File(export_dir)).mkdirs();
 	}
 }

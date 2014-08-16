@@ -43,7 +43,6 @@ public class MainActivity extends Activity {
 	private Config config;
 	private SettingsFragment settings_fragment;
 	private Data data;
-	private Settings settings;
 	private PaletteList palette_list;
 	private FragmentType cur_fragment;
 
@@ -58,7 +57,8 @@ public class MainActivity extends Activity {
 			Msg.init(this);
 
 			// Initialize config
-			Config.init();
+			Config.init(this);
+			config = Config.getInstance();
 
 			// Initialize palette list
 			palette_list = PaletteList.init(this);
@@ -68,13 +68,9 @@ public class MainActivity extends Activity {
 			data = Data.getInstance();
 			if(data.exists()) data.load();
 
-			// Initialize and load any Settings
-			Settings.init(this);
-			settings = Settings.getInstance();
-
 			// Select last used palette, or select first.
-			if(settings.getSelectedPalette() != null) {
-				Palette palette = palette_list.getPalette(settings.getSelectedPalette());
+			if(config.getSelectedPalette() != null) {
+				Palette palette = palette_list.getPalette(config.getSelectedPalette());
 				palette_list.setSelectedPalette(palette);
 			} else palette_list.setSelectedPosition(0);
 
@@ -107,7 +103,7 @@ public class MainActivity extends Activity {
 		// Make sure to destroy ALL singletons
 		PaletteList.destroy();
 		Data.destroy();
-		Settings.destroy();
+		Config.destroy();
 		Msg.destroy();
 
 		super.onDestroy();

@@ -165,7 +165,7 @@ public class PaletteList implements Iterable<Palette> {
 				found			=	true;
 
 				// Remember selected palette for when app is closed
-				Settings.getInstance().setSelectedPalette(palette.getName());
+				Config.getInstance().setSelectedPalette(palette.getName());
 			}
 		}
 
@@ -185,7 +185,7 @@ public class PaletteList implements Iterable<Palette> {
 			adapter.notifyDataSetChanged();
 
 			// Remember selected palette for when app is closed
-			Settings.getInstance().setSelectedPalette(getPalette(position).getName());
+			Config.getInstance().setSelectedPalette(getPalette(position).getName());
 		} else {
 			Msg.log(Msg.WARNING, "PaletteList.setSelectedPalette(int)",
 					"Palette at position '" + position + "' does not exist");
