@@ -31,6 +31,7 @@ import java.io.*;
 import java.util.*;
 
 import com.torygaurnier.util.Msg;
+import com.torygaurnier.util.FileUtil;
 
 
 /**
@@ -166,47 +167,109 @@ public class Data {
 	public void exportPalettes(ArrayList<Palette> export_list) {
 		// If media storage is mounted
 		if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			String path				=	null;
-			FileOutputStream file	=	null;
-			XmlSerializer xml		=	null;
-
-			try {
-				for(Palette palette : export_list) {
-					path	=	Config.getInstance().getExportDir() + palette.getName() + ".xml";
-					file	=	new FileOutputStream(path, false);
-					xml		=	Xml.newSerializer();
-					xml.setOutput(file, "UTF-8");
-					xml.startDocument("UTF-8", true);
-					writePalette(xml, palette);
-					xml.endDocument();
-				}
-
-				Msg.log(Msg.INFO, "Data.export()", "Data exported to sd card");
-			} catch(FileNotFoundException e) {
-				Msg.log(Msg.ERROR, "Data.export()", "Failed to find or create file " + path, e);
-			} catch(IOException e) {
-				Msg.log(Msg.ERROR, "Data.export()", "IO error with XmlSerializer", e);
-			} finally {
-				if(file != null) {
-					try {
-						file.close();
-					} catch(IOException e) {
-						Msg.log(Msg.ERROR, "Data.export()", "Failed to close file", e);
-					}
-				}
-			}
-		}
-
-		else {
+			exportPalettes(export_list.iterator(), export_list.size());
+		} else {
 			Msg.log(Msg.ERROR, "Data.export()", "External storage not available");
 		}
 	}
 
 
 	/**
-	 * This method recursively calls itself until iterator.hasNext() returns false.
+	 * Import palettes from import list.
 	 */
-	public void importPalettes(final Iterator<String> iterator, final int length) {
+	public void importPalettes(ArrayList<String> import_list) {
+		// If media storage is mounted
+		if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			importPalettes(import_list.iterator(), import_list.size());
+		} else {
+			Msg.log(Msg.ERROR, "Data.export()", "External storage not available");
+		}
+	}
+
+
+	/**
+	 * This is a convenience method, which recursively calls itself until iterator.hasNext() is
+	 * false.
+	 */
+	private void exportPalettes(final Iterator<Palette> iterator, final int length) {
+		if(confirmation_dialog == null) {
+			confirmation_dialog = new ConfirmationDialog(activity,
+					R.string.confirm_replace_palette_title,
+					(length > 1) ? true : false);
+		}
+
+		if(iterator.hasNext()) {
+			final Palette palette = iterator.next();
+			// Check if palette is already exported.
+			boolean found = false;
+			File export_dir = new File(Config.getInstance().getExportDir());
+			for(String name : FileUtil.getFileNameList(Config.getInstance().getExportDir(),
+					".xml")) {
+				if((name.toLowerCase()).equals(
+						(palette.getName().toLowerCase()) + ".xml")) {
+					found = true;
+					break;
+				}
+			}
+
+			// If already exported, confirm overwrite.
+			if(found) {
+				confirmation_dialog.confirm(
+					palette.getName() +
+						activity.getText(R.string.confirm_export_replace_palette_message),
+					new ConfirmationDialog.OnChoiceListener() {
+						public void onAccept() { exportPalette(palette); }
+						public void afterChoice() { exportPalettes(iterator, length); }
+					}
+				);
+			} else {
+				exportPalette(palette);
+				exportPalettes(iterator, length);
+			}
+		} else {
+			confirmation_dialog = null;
+		}
+	}
+
+
+	private void exportPalette(Palette palette) {
+		String path				=	null;
+		FileOutputStream file	=	null;
+		XmlSerializer xml		=	null;
+
+		try {
+			path	=	Config.getInstance().getExportDir() + palette.getName() + ".xml";
+			file	=	new FileOutputStream(path, false);
+			xml		=	Xml.newSerializer();
+			xml.setOutput(file, "UTF-8");
+			xml.startDocument("UTF-8", true);
+			writePalette(xml, palette);
+			xml.endDocument();
+			Msg.log(Msg.INFO, "Data.exportPalette(Palette)",
+					palette.getName() + " exported to sd card");
+		} catch(FileNotFoundException e) {
+				Msg.log(Msg.ERROR, "Data.exportPalette(Palette)",
+						"Failed to find or create file " + path, e);
+			} catch(IOException e) {
+				Msg.log(Msg.ERROR, "Data.exportPalette(Palette)", "IO error with XmlSerializer", e);
+			} finally {
+				if(file != null) {
+					try {
+						file.close();
+					} catch(IOException e) {
+						Msg.log(Msg.ERROR, "Data.exportPalette(Palette)",
+								"Failed to close file", e);
+					}
+				}
+			}
+	}
+
+
+	/**
+	 * This is a convenience method, which recursively calls itself until iterator.hasNext() returns
+	 * false.
+	 */
+	private void importPalettes(final Iterator<String> iterator, final int length) {
 		if(confirmation_dialog == null) {
 			confirmation_dialog = new ConfirmationDialog(activity,
 					R.string.confirm_replace_palette_title,
@@ -218,7 +281,7 @@ public class Data {
 			// If palette already exists, confirm overwrite
 			if(palette_list.getPalette(name) != null) {
 				confirmation_dialog.confirm(
-					name + activity.getText(R.string.confirm_replace_palette_message),
+					name + activity.getText(R.string.confirm_import_replace_palette_message),
 					new ConfirmationDialog.OnChoiceListener() {
 						public void onAccept() {
 							palette_list.remove(name);

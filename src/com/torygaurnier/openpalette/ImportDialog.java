@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import com.torygaurnier.dialog.SimpleDialog;
 import com.torygaurnier.util.Msg;
+import com.torygaurnier.util.FileUtil;
 
 
 public class ImportDialog extends SimpleDialog {
@@ -47,6 +48,11 @@ public class ImportDialog extends SimpleDialog {
 		setCancelText(R.string.cancel);
 		adapter			=	initAdapter();
 		selected_list	=	new ArrayList<String>();
+	}
+
+
+	public void onOkClicked(DialogInterface dialog_interface, int id) {
+		Data.getInstance().importPalettes(selected_list);
 	}
 
 
@@ -73,17 +79,7 @@ public class ImportDialog extends SimpleDialog {
 		});
 
 		// Populate adapter
-		File export_dir = new File(Config.getInstance().getExportDir());
-		for(String name : Arrays.asList(
-			export_dir.list(
-				new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return (name.toLowerCase()).endsWith(".xml");
-					}
-				}
-			)
-		)) {
+		for(String name : FileUtil.getFileNameList(Config.getInstance().getExportDir(), ".xml")) {
 			adapter.add(name.substring(0, name.length() - 4));
 		}
 
@@ -143,11 +139,6 @@ public class ImportDialog extends SimpleDialog {
 		});
 
 		return root_view;
-	}
-
-
-	public void onOkClicked(DialogInterface dialog_interface, int id) {
-		Data.getInstance().importPalettes(selected_list.iterator(), selected_list.size());
 	}
 
 

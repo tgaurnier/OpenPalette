@@ -26,6 +26,8 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.Preference;
 
+import com.torygaurnier.util.FileUtil;
+
 
 /**
  * class SettingsFragment
@@ -33,7 +35,6 @@ import android.preference.Preference;
  * View that displays any settings/configurations.
  */
 public class SettingsFragment extends PreferenceFragment {
-	private static SettingsFragment instance = null;
 	private MainActivity activity;
 
 
@@ -54,6 +55,10 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
 
+		if(PaletteList.getInstance().size() == 0) {
+			export_data.setEnabled(false);
+		}
+
 		// Import data option
 		Preference import_data = (Preference)findPreference("importData");
 		import_data.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -64,6 +69,10 @@ public class SettingsFragment extends PreferenceFragment {
 				return true;
 			}
 		});
+
+		if(FileUtil.getFileNameList(Config.getInstance().getExportDir(), ".xml").size() == 0) {
+			import_data.setEnabled(false);
+		}
 
 		activity.refresh();
 	}

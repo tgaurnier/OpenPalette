@@ -158,10 +158,20 @@ public class PaletteList implements Iterable<Palette> {
 	 * Sets selection to matching palette.
 	 */
 	public void setSelectedPalette(Palette palette) {
+		boolean found = false;
 		for(int i = 0; i < adapter.getCount(); i++) {
 			if(palette.equals(adapter.getItem(i))) {
-				selected_pos = i;
+				selected_pos	=	i;
+				found			=	true;
+
+				// Remember selected palette for when app is closed
+				Settings.getInstance().setSelectedPalette(palette.getName());
 			}
+		}
+
+		if(!found) {
+			Msg.log(Msg.WARNING, "PaletteList.setSelectedPalette(Palette)",
+					"Palette '" + palette.getName() + "' not in list");
 		}
 	}
 
@@ -170,8 +180,16 @@ public class PaletteList implements Iterable<Palette> {
 	 * Sets selection to palette at position.
 	 */
 	public void setSelectedPosition(int position) {
-		selected_pos = position;
-		adapter.notifyDataSetChanged();
+		if(position < adapter.getCount()) {
+			selected_pos = position;
+			adapter.notifyDataSetChanged();
+
+			// Remember selected palette for when app is closed
+			Settings.getInstance().setSelectedPalette(getPalette(position).getName());
+		} else {
+			Msg.log(Msg.WARNING, "PaletteList.setSelectedPalette(int)",
+					"Palette at position '" + position + "' does not exist");
+		}
 	}
 
 
@@ -180,6 +198,14 @@ public class PaletteList implements Iterable<Palette> {
 	 */
 	public int getSelectedPosition() {
 		return selected_pos;
+	}
+
+
+	/**
+	 * Returns number of palettes in list.
+	 */
+	public int size() {
+		return adapter.getCount();
 	}
 
 

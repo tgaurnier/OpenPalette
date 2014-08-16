@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import com.torygaurnier.util.Msg;
 
 
-//TODO: ON CLOSE SAVE WHICH PALETTE WAS LAST SELECTED, AND SELECT IT ON NEXT START
 public class MainActivity extends Activity {
 	// All fragments should have a type added here, for keeping track of active fragment
 	private enum FragmentType {
@@ -44,6 +43,7 @@ public class MainActivity extends Activity {
 	private Config config;
 	private SettingsFragment settings_fragment;
 	private Data data;
+	private Settings settings;
 	private PaletteList palette_list;
 	private FragmentType cur_fragment;
 
@@ -68,8 +68,15 @@ public class MainActivity extends Activity {
 			data = Data.getInstance();
 			if(data.exists()) data.load();
 
-			// Make sure on first load, first palette is selected instead of last
-			palette_list.setSelectedPosition(0);
+			// Initialize and load any Settings
+			Settings.init(this);
+			settings = Settings.getInstance();
+
+			// Select last used palette, or select first.
+			if(settings.getSelectedPalette() != null) {
+				Palette palette = palette_list.getPalette(settings.getSelectedPalette());
+				palette_list.setSelectedPalette(palette);
+			} else palette_list.setSelectedPosition(0);
 
 			// Initialize fragments
 			main_fragment = new MainFragment();
@@ -100,6 +107,7 @@ public class MainActivity extends Activity {
 		// Make sure to destroy ALL singletons
 		PaletteList.destroy();
 		Data.destroy();
+		Settings.destroy();
 		Msg.destroy();
 
 		super.onDestroy();

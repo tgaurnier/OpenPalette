@@ -38,7 +38,8 @@
 	<string name="import_dialog_title">Import Palettes</string>
 	<string name="confirm_replace_palette_title">Confirm Replace Palette</string>
 	<!-- confirm_replace_palette_message is meant to be appended onto "Palette Name" -->
-	<string name="confirm_replace_palette_message">&#160;already exists, replace?</string>
+	<string name="confirm_import_replace_palette_message">&#160;already exists, replace?</string>
+	<string name="confirm_export_replace_palette_message">&#160;already exported, replace?</string>
 	<string name="do_not_ask_again">Don\'t ask again</string>
 
 
