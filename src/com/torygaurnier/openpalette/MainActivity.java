@@ -72,7 +72,9 @@ public class MainActivity extends Activity {
 			if(config.getSelectedPalette() != null) {
 				Palette palette = palette_list.getPalette(config.getSelectedPalette());
 				palette_list.setSelectedPalette(palette);
-			} else palette_list.setSelectedPosition(0);
+			} else if(palette_list.size() > 0) {
+				palette_list.setSelectedPosition(0);
+			}
 
 			// Initialize fragments
 			main_fragment = new MainFragment();
